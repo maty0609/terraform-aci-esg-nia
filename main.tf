@@ -19,6 +19,11 @@ data "aci_vrf" "this" {
   tenant_dn = data.aci_tenant.this.id
 }
 
+data "aci_bridge_domain" "this" {
+  tenant_dn  = data.aci_tenant.this.id
+  name = "production"
+}
+
 resource "aci_endpoint_security_group" "this" {
   #Loop through the list of unique services that need to be created
   for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
@@ -39,5 +44,5 @@ resource "aci_application_epg" "dc-showcase-apps" {
   for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
   application_profile_dn  = data.aci_application_profile.this.id
   name = each.value
-  relation_fv_rs_bd = "test"
+  relation_fv_rs_bd = data.aci_bridge_domain.this.id
 }
