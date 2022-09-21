@@ -34,3 +34,10 @@ resource "aci_endpoint_security_group_selector" "this" {
   match_expression             = each.value.match_expression
   description                  = "Service instance ${each.value.id} on node ${each.value.node}"
 }
+
+resource "aci_application_epg" "dc-showcase-apps" {
+  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
+  application_profile_dn  = data.aci_application_profile.this.id
+  name = each.value
+  relation_fv_rs_bd = "test"
+}
