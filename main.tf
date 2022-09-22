@@ -67,6 +67,16 @@ data "vsphere_resource_pool" "compute_cluster" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
+data "aci_vmm_domain" "vds" {
+	provider_profile_dn = "uni/vmmp-VMware"
+	name                = "vds_1"
+}
+
+resource "aci_epg_to_domain" "kubernetes" {
+  application_epg_dn    = aci_application_epg.dc-showcase-apps[0].id
+  tdn                   = data.aci_vmm_domain.vds.id
+}
+
 
 resource "vsphere_virtual_machine" "vm" {
   name             = "app01"
