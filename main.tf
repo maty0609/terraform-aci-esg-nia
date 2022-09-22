@@ -24,21 +24,21 @@ data "aci_bridge_domain" "this" {
   name = "uk-dc-showcase-production-bd"
 }
 
-resource "aci_endpoint_security_group" "this" {
-  #Loop through the list of unique services that need to be created
-  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
-  application_profile_dn = data.aci_application_profile.this.id
-  relation_fv_rs_scope   = data.aci_vrf.this.id
-  name                   = each.value
-}
+# resource "aci_endpoint_security_group" "this" {
+#   #Loop through the list of unique services that need to be created
+#   for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
+#   application_profile_dn = data.aci_application_profile.this.id
+#   relation_fv_rs_scope   = data.aci_vrf.this.id
+#   name                   = each.value
+# }
 
-resource "aci_endpoint_security_group_selector" "this" {
-  #Loop through the list of compute instances and map them to the corresponding service redirection policy and associated VIP
-  for_each                   = { for _, s in local.synthetic_payload : s.id => s }
-  endpoint_security_group_dn  = aci_endpoint_security_group.this[each.value.esg].id
-  match_expression             = each.value.match_expression
-  description                  = "Service instance ${each.value.id} on node ${each.value.node}"
-}
+# resource "aci_endpoint_security_group_selector" "this" {
+#   #Loop through the list of compute instances and map them to the corresponding service redirection policy and associated VIP
+#   for_each                   = { for _, s in local.synthetic_payload : s.id => s }
+#   endpoint_security_group_dn  = aci_endpoint_security_group.this[each.value.esg].id
+#   match_expression             = each.value.match_expression
+#   description                  = "Service instance ${each.value.id} on node ${each.value.node}"
+# }
 
 resource "aci_application_epg" "dc-showcase-apps" {
   for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
