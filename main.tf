@@ -49,5 +49,5 @@ resource "aci_application_epg" "dc-showcase-apps" {
 
 # data block to fetch the datacenter id
 data "vsphere_datacenter" "dc" {
-  name = var.vsphere_datacenter
+  name = "ukdca_production"
 }
