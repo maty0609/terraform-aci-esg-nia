@@ -58,7 +58,7 @@ data "vsphere_datastore" "datastore" {
 }
 
 data "vsphere_network" "network" {
-  name          = "cts-app-svc"
+  name          = "showcase_dc|clus2022|cts-app-svc"
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
