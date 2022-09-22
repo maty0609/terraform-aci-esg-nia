@@ -73,7 +73,7 @@ data "aci_vmm_domain" "vds" {
 }
 
 resource "aci_epg_to_domain" "kubernetes" {
-  application_epg_dn    = aci_application_epg.dc-showcase-apps[0].id
+  application_epg_dn    = aci_application_epg.dc-showcase-apps.id[0]
   tdn                   = data.aci_vmm_domain.vds.id
 }
 
