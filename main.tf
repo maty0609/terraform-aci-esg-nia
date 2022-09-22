@@ -21,7 +21,7 @@ data "aci_vrf" "this" {
 
 data "aci_bridge_domain" "this" {
   tenant_dn  = data.aci_tenant.this.id
-  name = "production"
+  name = "uk-dc-showcase-production-bd"
 }
 
 resource "aci_endpoint_security_group" "this" {
@@ -50,4 +50,9 @@ resource "aci_application_epg" "dc-showcase-apps" {
 # data block to fetch the datacenter id
 data "vsphere_datacenter" "dc" {
   name = "ukdcb_production"
+}
+
+data "vsphere_network" "network" {
+  name          = "VM Network"
+  datacenter_id = data.vsphere_datacenter.datacenter.id
 }
