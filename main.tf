@@ -52,7 +52,28 @@ data "vsphere_datacenter" "dc" {
   name = "ukdcb_production"
 }
 
-data "vsphere_network" "network" {
-  name          = "VM Network"
+data "vsphere_datastore" "datastore" {
+  name          = "showcase-dc"
   datacenter_id = data.vsphere_datacenter.dc.id
+}
+
+data "vsphere_network" "network" {
+  name          = "cts-app-svc"
+  datacenter_id = data.vsphere_datacenter.dc.id
+}
+
+data "vsphere_resource_pool" "compute_cluster" {
+  name          = "cluster-natilik/Resources"
+  datacenter_id = data.vsphere_datacenter.dc.id
+}
+
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "app01"
+  resource_pool_id = data.vsphere_resource_pool.compute_cluster.id
+  datastore_id     = data.vsphere_datastore.datastore.id
+
+  network_interface {
+    network_id = "${data.vsphere_network.network.id}"
+  }
 }
