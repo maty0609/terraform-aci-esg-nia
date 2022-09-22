@@ -1,3 +1,9 @@
+variable "vsphere_datacenter" {
+  description = "variable for the datacenter where the VMs will be deployed"
+  type        = string
+  default     = "ukdcb_production"
+}
+
 variable "services" {
   description = "Consul services monitored by Consul NIA"
   type = map(

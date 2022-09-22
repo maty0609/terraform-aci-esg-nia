@@ -46,3 +46,8 @@ resource "aci_application_epg" "dc-showcase-apps" {
   name = each.value
   relation_fv_rs_bd = data.aci_bridge_domain.this.id
 }
+
+# data block to fetch the datacenter id
+data "vsphere_datacenter" "dc" {
+  name = var.vsphere_datacenter
+}
