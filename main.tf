@@ -73,10 +73,10 @@ data "aci_vmm_domain" "vds" {
 }
 
 resource "aci_epg_to_domain" "kubernetes" {
-  application_epg_dn    = aci_application_epg.dc-showcase-apps.0.id
+  for_each = aci_application_epg.dc-showcase-apps
+  application_epg_dn    = each.value.id
   tdn                   = data.aci_vmm_domain.vds.id
 }
-
 
 resource "vsphere_virtual_machine" "vm" {
   name             = "app01"
