@@ -82,6 +82,7 @@ resource "vsphere_virtual_machine" "vm" {
   name             = "app01"
   resource_pool_id = data.vsphere_resource_pool.compute_cluster.id
   datastore_id     = data.vsphere_datastore.datastore.id
+  folder           = "showcase/dc/clus2022"
 
   network_interface {
     network_id = "${data.vsphere_network.network.id}"
