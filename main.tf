@@ -10,19 +10,33 @@ locals {
 data "aci_tenant" "this" {
   name = var.tenant_name
 }
-data "aci_application_profile" "this" {
-  name = var.application_profile_name
-  tenant_dn = data.aci_tenant.this.id
+
+data "aci_tenant" "common" {
+  name = "common"
 }
-data "aci_vrf" "this" {
-  name = var.vrf_name
+
+data "aci_application_profile" "hashiconf2022" {
+  name = "hashiconf2022"
   tenant_dn = data.aci_tenant.this.id
 }
 
-data "aci_bridge_domain" "this" {
+data "aci_bridge_domain" "hashiconf2022" {
   tenant_dn  = data.aci_tenant.this.id
   name = "uk-dc-showcase-production-bd"
 }
+
+data "aci_contract" "inet" {
+  tenant_dn  =  data.aci_tenant.common.id
+  name       = "inet"
+}
+
+resource "aci_application_epg" "hashiconf2022" {
+  application_profile_dn  = aci_application_profile.hashiconf2022.id
+  name = "app"
+  relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
+  relation_fv_rs_cons = [data.aci_contract.inet.id]
+}
+
 
 # resource "aci_endpoint_security_group" "this" {
 #   #Loop through the list of unique services that need to be created
@@ -39,57 +53,3 @@ data "aci_bridge_domain" "this" {
 #   match_expression             = each.value.match_expression
 #   description                  = "Service instance ${each.value.id} on node ${each.value.node}"
 # }
-
-resource "aci_application_epg" "dc-showcase-apps" {
-  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
-  application_profile_dn  = data.aci_application_profile.this.id
-  name = each.value
-  relation_fv_rs_bd = data.aci_bridge_domain.this.id
-}
-
-# data block to fetch the datacenter id
-data "vsphere_datacenter" "dc" {
-  name = "ukdcb_production"
-}
-
-data "vsphere_datastore" "datastore" {
-  name          = "showcase-dc"
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
-
-data "vsphere_network" "network" {
-  name          = "showcase_dc|clus2022|cts-app-svc"
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
-
-data "vsphere_resource_pool" "compute_cluster" {
-  name          = "cluster-natilik/Resources"
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
-
-data "aci_vmm_domain" "vds" {
-	provider_profile_dn = "uni/vmmp-VMware"
-	name                = "vds_1"
-}
-
-resource "aci_epg_to_domain" "kubernetes" {
-  for_each = aci_application_epg.dc-showcase-apps
-  application_epg_dn    = each.value.id
-  tdn                   = data.aci_vmm_domain.vds.id
-}
-
-resource "vsphere_virtual_machine" "vm" {
-  name             = "app01"
-  resource_pool_id = data.vsphere_resource_pool.compute_cluster.id
-  datastore_id     = data.vsphere_datastore.datastore.id
-  folder           = "showcase/dc/clus2022"
-
-  network_interface {
-    network_id = "${data.vsphere_network.network.id}"
-  }
-  disk {
-    label            = "os"
-    size             = 50
-  }
-
-}
