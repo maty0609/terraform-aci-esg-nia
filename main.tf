@@ -67,7 +67,7 @@ resource "aci_application_epg" "hashiconf2022" {
   relation_fv_rs_prov = [data.aci_contract.consul.id]
 }
 
-resource "aci_application_epg" "hashiconf2022" {
+resource "aci_application_epg" "hashiconf2022-app2" {
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
   name = "app2"
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
