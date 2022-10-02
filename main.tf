@@ -35,16 +35,17 @@ data "aci_contract" "consul" {
   name       = "kubernetes-to-dc-showcase"
 }
 
-# resource "aci_filter" "hashi2022-app" {
-# 	tenant_dn = data.aci_tenant.showcase.id
-# 	name      = "hashi2022-app"
-# }
+data "aci_filter" "allow_https" {
+	tenant_dn = data.aci_tenant.showcase.id
+	name      = "allow_https"
+}
 
-# resource "aci_contract_subject" "hashi2022-app" {
-# 	contract_dn                  = aci_contract.hashi2022-app.id
-# 	name                         = "hashi2022-app"
-# 	relation_vz_rs_subj_filt_att = [aci_filter.hashi2022-app.id]
-# }
+resource "aci_contract_subject" "hashi2022-app" {
+  for_each               = { for _, policy in distinct([for s in local.service_payload : s.name]) : policy => policy }
+	contract_dn                  = data.aci_contract.consul.id
+	name                         = each.value
+	relation_vz_rs_subj_filt_att = [data.aci_filter.allow_https.id]
+}
 
 # resource "aci_filter_entry" "hashi2022-app" {
 #   name        = "hashi2022-app"
@@ -59,15 +60,15 @@ data "aci_contract" "consul" {
 # 	name      = "hashi2022-app"
 # }
 
-resource "aci_application_epg" "hashiconf2022" {
-#  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
-  for_each               = { for _, policy in distinct([for s in local.service_payload : s.name]) : policy => policy }
-  application_profile_dn  = data.aci_application_profile.hashiconf2022.id
-  name = each.value
-  relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
-  relation_fv_rs_cons = [data.aci_contract.inet.id]
-  relation_fv_rs_prov = [data.aci_contract.consul.id]
-}
+# resource "aci_application_epg" "hashiconf2022" {
+# #  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
+#   for_each               = { for _, policy in distinct([for s in local.service_payload : s.name]) : policy => policy }
+#   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
+#   name = each.value
+#   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
+#   relation_fv_rs_cons = [data.aci_contract.inet.id]
+#   relation_fv_rs_prov = [data.aci_contract.consul.id]
+# }
 
 
 # resource "aci_endpoint_security_group" "this" {
