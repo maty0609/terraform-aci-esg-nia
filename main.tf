@@ -7,7 +7,7 @@ locals {
 
 }
 
-data "aci_tenant" "this" {
+data "aci_tenant" "showcase" {
   name = var.tenant_name
 }
 
@@ -17,11 +17,11 @@ data "aci_tenant" "common" {
 
 data "aci_application_profile" "hashiconf2022" {
   name = "hashiconf2022"
-  tenant_dn = data.aci_tenant.this.id
+  tenant_dn = data.aci_tenant.showcase.id
 }
 
 data "aci_bridge_domain" "hashiconf2022" {
-  tenant_dn  = data.aci_tenant.this.id
+  tenant_dn  = data.aci_tenant.showcase.id
   name = "uk-dc-showcase-production-bd"
 }
 
@@ -30,11 +30,17 @@ data "aci_contract" "inet" {
   name       = "inet"
 }
 
+data "aci_contract" "consul" {
+  tenant_dn  =  data.aci_tenant.showcase.id
+  name       = "kubernetes-to-dc-showcase"
+}
+
 resource "aci_application_epg" "hashiconf2022" {
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
   name = "app"
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
   relation_fv_rs_cons = [data.aci_contract.inet.id]
+  relation_fv_rs_prov = [data.aci_contract.consul.id]
 }
 
 
