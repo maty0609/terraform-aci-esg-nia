@@ -35,46 +35,38 @@ data "aci_contract" "consul" {
   name       = "kubernetes-to-dc-showcase"
 }
 
-resource "aci_filter" "hashi2022-app" {
-	tenant_dn = data.aci_tenant.showcase.id
-	name      = "hashi2022-app"
-}
+# resource "aci_filter" "hashi2022-app" {
+# 	tenant_dn = data.aci_tenant.showcase.id
+# 	name      = "hashi2022-app"
+# }
 
-resource "aci_contract_subject" "hashi2022-app" {
-	contract_dn                  = aci_contract.hashi2022-app.id
-	name                         = "hashi2022-app"
-	relation_vz_rs_subj_filt_att = [aci_filter.hashi2022-app.id]
-}
+# resource "aci_contract_subject" "hashi2022-app" {
+# 	contract_dn                  = aci_contract.hashi2022-app.id
+# 	name                         = "hashi2022-app"
+# 	relation_vz_rs_subj_filt_att = [aci_filter.hashi2022-app.id]
+# }
 
-resource "aci_filter_entry" "hashi2022-app" {
-  name        = "hashi2022-app"
-  filter_dn   = aci_filter.hashi2022-app.id
-  ether_t     = "ip"
-  prot        = "tcp"
-  stateful    = "no"
-}
+# resource "aci_filter_entry" "hashi2022-app" {
+#   name        = "hashi2022-app"
+#   filter_dn   = aci_filter.hashi2022-app.id
+#   ether_t     = "ip"
+#   prot        = "tcp"
+#   stateful    = "no"
+# }
 
-resource "aci_contract" "hashi2022-app" {
-	tenant_dn = data.aci_tenant.showcase.id
-	name      = "hashi2022-app"
-}
+# resource "aci_contract" "hashi2022-app" {
+# 	tenant_dn = data.aci_tenant.showcase.id
+# 	name      = "hashi2022-app"
+# }
 
 resource "aci_application_epg" "hashiconf2022" {
+  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
-  name = "app"
+  name = each.value
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
   relation_fv_rs_cons = [data.aci_contract.inet.id,aci_contract.hashi2022-app.id]
   relation_fv_rs_prov = [data.aci_contract.consul.id]
 }
-
-resource "aci_application_epg" "hashiconf2022-app2" {
-  application_profile_dn  = data.aci_application_profile.hashiconf2022.id
-  name = "app2"
-  relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
-  relation_fv_rs_cons = [data.aci_contract.inet.id,aci_contract.hashi2022-app.id]
-  relation_fv_rs_prov = [data.aci_contract.consul.id]
-}
-
 
 
 # resource "aci_endpoint_security_group" "this" {
