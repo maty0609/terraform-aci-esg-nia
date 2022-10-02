@@ -30,21 +30,21 @@ data "aci_contract" "inet" {
   name       = "inet"
 }
 
-data "aci_contract" "consul" {
+data "aci_contract" "hashi2022-app-web" {
   tenant_dn  =  data.aci_tenant.showcase.id
-  name       = "kubernetes-to-dc-showcase"
+  name       = "hashi2022-app-web"
 }
 
-data "aci_filter" "allow_https" {
+data "aci_filter" "hashi2022-app" {
 	tenant_dn = data.aci_tenant.showcase.id
-	name      = "allow_https"
+	name      = "hashi2022-app"
 }
 
 resource "aci_contract_subject" "hashi2022-app" {
   for_each               = { for _, policy in distinct([for s in local.service_payload : s.name]) : policy => policy }
-	contract_dn                  = data.aci_contract.consul.id
+	contract_dn                  = data.aci_contract.hashi2022-app-web.id
 	name                         = each.value
-	relation_vz_rs_subj_filt_att = [data.aci_filter.allow_https.id]
+	relation_vz_rs_subj_filt_att = [data.aci_filter.hashi2022-app.id]
 }
 
 # resource "aci_filter_entry" "hashi2022-app" {
