@@ -61,7 +61,7 @@ data "aci_contract" "consul" {
 
 resource "aci_application_epg" "hashiconf2022" {
 #  for_each               = { for _, policy in distinct([for s in local.synthetic_payload : s.esg]) : policy => policy }
-  for_each               = { for _, policy in distinct([for s in local.service_payload : s.esg]) : policy => policy }
+  for_each               = { for _, policy in distinct([for s in local.service_payload : s.name]) : policy => policy }
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
   name = each.value
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
