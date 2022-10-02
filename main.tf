@@ -35,12 +35,35 @@ data "aci_contract" "consul" {
   name       = "kubernetes-to-dc-showcase"
 }
 
+resource "aci_filter" "hashi2022-app" {
+	tenant_dn = data.aci_tenant.showcase.id
+	name      = "hashi2022-app"
+}
+
+resource "aci_contract_subject" "hashi2022-app" {
+	contract_dn                  = aci_contract.hashi2022-app.id
+	name                         = "hashi2022-app"
+	relation_vz_rs_subj_filt_att = [aci_filter.hashi2022-app.id]
+}
+
+resource "aci_filter_entry" "hashi2022-app" {
+  name        = "hashi2022-app"
+  filter_dn   = aci_filter.hashi2022-app.id
+  ether_t     = "ip"
+  prot        = "tcp"
+  stateful    = "no"
+}
+
+resource "aci_contract" "hashi2022-app" {
+	tenant_dn = data.aci_tenant.showcase.id
+	name      = "hashi2022-app"
+}
+
 resource "aci_application_epg" "hashiconf2022" {
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
   name = "app"
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
-  relation_fv_rs_cons = [data.aci_contract.inet.id,data.aci_contract.consul.id]
-  relation_fv_rs_prov = [data.aci_contract.consul.id]
+  relation_fv_rs_cons = [aci_contract.hashi2022-app.id]
 }
 
 
