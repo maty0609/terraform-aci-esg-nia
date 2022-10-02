@@ -39,8 +39,9 @@ resource "aci_application_epg" "hashiconf2022" {
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
   name = "app"
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
-  relation_fv_rs_cons = [data.aci_contract.inet.id]
-  relation_fv_rs_prov = [data.aci_contract.consul.id]
+  #relation_fv_rs_cons = [data.aci_contract.inet.id]
+  #relation_fv_rs_prov = [data.aci_contract.consul.id]
+  relation_fv_rs_cons = [data.aci_contract.consul.id]
 }
 
 
