@@ -63,8 +63,18 @@ resource "aci_application_epg" "hashiconf2022" {
   application_profile_dn  = data.aci_application_profile.hashiconf2022.id
   name = "app"
   relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
-  relation_fv_rs_cons = [aci_contract.hashi2022-app.id]
+  relation_fv_rs_cons = [data.aci_contract.inet.id,aci_contract.hashi2022-app.id]
+  relation_fv_rs_prov = [data.aci_contract.consul.id]
 }
+
+resource "aci_application_epg" "hashiconf2022" {
+  application_profile_dn  = data.aci_application_profile.hashiconf2022.id
+  name = "app2"
+  relation_fv_rs_bd = data.aci_bridge_domain.hashiconf2022.id
+  relation_fv_rs_cons = [data.aci_contract.inet.id,aci_contract.hashi2022-app.id]
+  relation_fv_rs_prov = [data.aci_contract.consul.id]
+}
+
 
 
 # resource "aci_endpoint_security_group" "this" {
